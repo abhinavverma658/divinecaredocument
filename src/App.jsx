@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+// Use Vite env variable for API URL
+const API_URL = import.meta.env.VITE_API_URL;
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 export default function SignInPage() {
@@ -6,19 +8,41 @@ export default function SignInPage() {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
 
-  const handleSubmit = (e) => {
-    // prevent default when invoked from a form/button that might pass an event
-    e?.preventDefault?.();
-    console.log('Sign in attempted with:', { email, password });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
 
-    // Simple demo auth: require both fields, then navigate to /home
-    if (email && password) {
-      // perform demo "sign-in"
-      window.history.pushState({}, '', '/home');
-      // notify our tiny router in main.jsx
-      window.dispatchEvent(new PopStateEvent('popstate'));
-    } else {
-      alert('Please enter both email and password.');
+  const handleSubmit = async (e) => {
+    e?.preventDefault?.();
+    setError('');
+    if (!email || !password) {
+      setError('Please enter both email and password.');
+      return;
+    }
+    setLoading(true);
+    try {
+      const res = await fetch(`${API_URL}/api/auth/login`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password }),
+      });
+      const data = await res.json();
+      if (data.success && data.data?.token) {
+        // Store token (localStorage/sessionStorage as needed)
+        localStorage.setItem('token', data.data.token);
+        // Optionally store user info
+        localStorage.setItem('user', JSON.stringify(data.data.user));
+        // Navigate to /home
+        window.history.pushState({}, '', '/home');
+        window.dispatchEvent(new PopStateEvent('popstate'));
+      } else {
+        setError(data.message || 'Login failed.');
+      }
+    } catch (err) {
+      setError('Network error. Please try again.');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -66,6 +90,11 @@ export default function SignInPage() {
 
                 {/* Sign In Form */}
                 <div>
+                  {error && (
+                    <div className="alert alert-danger py-2" role="alert">
+                      {error}
+                    </div>
+                  )}
                   <div className="mb-3">
                     <label htmlFor="email" className="form-label fw-semibold">
                       Email Address
@@ -134,8 +163,9 @@ export default function SignInPage() {
                     type="button" 
                     className="btn btn-primary btn-lg w-100 mb-3"
                     onClick={handleSubmit}
+                    disabled={loading}
                   >
-                    Sign In
+                    {loading ? 'Signing In...' : 'Sign In'}
                   </button>
 
                   {/* <div className="text-center">
@@ -151,7 +181,7 @@ export default function SignInPage() {
             {/* Footer */}
             <div className="text-center mt-4">
               <p className="text-muted small mb-0">
-                © 2025 Your Brand. All rights reserved.
+                © 2025 Divine Care. All rights reserved.
               </p>
             </div>
           </div>

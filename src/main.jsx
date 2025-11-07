@@ -5,6 +5,8 @@ import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 import SignInPage from './App.jsx'
 import Home from './home.jsx'
 import ForgotPassword from './ForgotPassword.jsx'
+import VerifyOtp from './VerifyOtp.jsx'
+import ResetPassword from './ResetPassword.jsx'
 
 function Router() {
   const [path, setPath] = useState(window.location.pathname);
@@ -17,6 +19,8 @@ function Router() {
 
   if (path === '/home') return <Home />;
   if (path === '/forgot-password') return <ForgotPassword />;
+  if (path === '/verify-otp') return <VerifyOtp />;
+  if (path === '/reset-password') return <ResetPassword />;
   return <SignInPage />;
 }
 

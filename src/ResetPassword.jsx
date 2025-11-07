@@ -1,67 +1,74 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 const API_URL = import.meta.env.VITE_API_URL;
 
-export default function ForgotPassword() {
-  const [email, setEmail] = useState('');
+export default function ResetPassword() {
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const [resetToken, setResetToken] = useState('');
+
+  useEffect(() => {
+    // Get resetToken from sessionStorage
+    const token = sessionStorage.getItem('resetToken');
+    if (token) {
+      setResetToken(token);
+    } else {
+      // If no token found, redirect back to forgot password
+      window.history.pushState({}, '', '/forgot-password');
+      window.dispatchEvent(new PopStateEvent('popstate'));
+    }
+  }, []);
 
   const handleSubmit = async (e) => {
     e?.preventDefault?.();
     setError('');
     setSuccess('');
-    // For testing: immediately redirect to verify-otp page and store email
-    if (email) {
-      sessionStorage.setItem('resetEmail', email);
-      window.history.pushState({}, '', '/verify-otp');
-      window.dispatchEvent(new PopStateEvent('popstate'));
-    }
-    // ...existing code for real API call below...
-    /*
-    if (!email) {
-      setError('Please enter your email address.');
+    if (!password || !confirmPassword) {
+      setError('Please fill in both fields.');
       return;
     }
-
-    // Basic email validation
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-      setError('Please enter a valid email address.');
+    if (password !== confirmPassword) {
+      setError('Passwords do not match.');
       return;
     }
-
+    if (password.length < 6) {
+      setError('Password must be at least 6 characters.');
+      return;
+    }
     setLoading(true);
     try {
-      const res = await fetch(`${API_URL}/api/password/request-otp`, {
+      const res = await fetch(`${API_URL}/api/password/reset-password-otp`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ email }),
+        body: JSON.stringify({
+          resetToken,
+          password,
+          confirmPassword
+        }),
       });
       const data = await res.json();
-      
       if (data.success) {
-        setSuccess('OTP sent to your mail');
-        // Store email in sessionStorage for verify page
-        sessionStorage.setItem('resetEmail', email);
-        // Navigate to verify OTP page after a short delay
+        setSuccess('Password reset successfully!');
+        sessionStorage.removeItem('resetToken');
+        // Optionally redirect to login after a delay
         setTimeout(() => {
-          window.history.pushState({}, '', '/verify-otp');
+          window.history.pushState({}, '', '/');
           window.dispatchEvent(new PopStateEvent('popstate'));
-        }, 1500);
+        }, 2000);
       } else {
-        setError(data.message || 'Failed to send OTP.');
+        setError(data.message || 'Failed to reset password.');
       }
     } catch (err) {
       setError('Network error. Please try again.');
     } finally {
       setLoading(false);
     }
-    */
   };
 
   const handleBackToLogin = () => {
@@ -85,11 +92,11 @@ export default function ForgotPassword() {
                       alt="Brand logo"
                     />
                   </div>
-                  <h2 className="fw-bold mb-2 fs-3 fs-sm-2">Forgot Password?</h2>
-                  <p className="text-muted mb-0 small">Enter your email address and we'll send you a link to reset your password</p>
+                  <h2 className="fw-bold mb-2 fs-3 fs-sm-2">Set New Password</h2>
+                  <p className="text-muted mb-0 small">Enter your new password below</p>
                 </div>
 
-                {/* Forgot Password Form */}
+                {/* Reset Password Form */}
                 <div>
                   {error && (
                     <div className="alert alert-danger py-2" role="alert">
@@ -101,30 +108,40 @@ export default function ForgotPassword() {
                       {success}
                     </div>
                   )}
-                  
                   <div className="mb-3">
-                    <label htmlFor="email" className="form-label fw-semibold">
-                      Email Address
+                    <label htmlFor="password" className="form-label fw-semibold">
+                      New Password
                     </label>
                     <input
-                      type="email"
+                      type="password"
                       className="form-control form-control-lg"
-                      id="email"
-                      placeholder="Enter your email"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
+                      id="password"
+                      placeholder="Enter new password"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
                     />
                   </div>
-
+                  <div className="mb-3">
+                    <label htmlFor="confirmPassword" className="form-label fw-semibold">
+                      Confirm Password
+                    </label>
+                    <input
+                      type="password"
+                      className="form-control form-control-lg"
+                      id="confirmPassword"
+                      placeholder="Confirm new password"
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                    />
+                  </div>
                   <button 
                     type="button" 
                     className="btn btn-primary btn-lg w-100 mb-3"
                     onClick={handleSubmit}
                     disabled={loading}
                   >
-                    {loading ? 'Sending...' : 'Send OTP'}
+                    {loading ? 'Resetting...' : 'Reset Password'}
                   </button>
-
                   <div className="text-center">
                     <button 
                       onClick={handleBackToLogin}
@@ -136,7 +153,6 @@ export default function ForgotPassword() {
                 </div>
               </div>
             </div>
-
             {/* Footer */}
             <div className="text-center mt-4">
               <p className="text-muted small mb-0">

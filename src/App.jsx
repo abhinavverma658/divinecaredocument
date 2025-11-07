@@ -47,12 +47,12 @@ export default function SignInPage() {
   };
 
   return (
-    <div className="min-vh-100 d-flex align-items-center justify-content-center bg-light">
-      <div className="container">
+    <div className="min-vh-100 d-flex align-items-center justify-content-center bg-light py-3 py-sm-4">
+      <div className="container px-3 px-sm-4">
         <div className="row justify-content-center">
           <div className="col-12 col-sm-10 col-md-8 col-lg-6 col-xl-5">
             <div className="card shadow-lg border-0 rounded-4">
-              <div className="card-body p-4 p-sm-5">
+              <div className="card-body p-3 p-sm-4 p-md-5">
                 {/* Brand Logo */}
                 <div className="text-center mb-4">
                   <div className="d-inline-flex align-items-center justify-content-center  rounded-circle mb-3" 
@@ -84,8 +84,8 @@ export default function SignInPage() {
                       // }}
                     />
                   </div>
-                  <h2 className="fw-bold mb-2">Welcome Back</h2>
-                  <p className="text-muted mb-0">Sign in to continue to your account</p>
+                  <h2 className="fw-bold mb-2 fs-3 fs-sm-2">Welcome Back</h2>
+                  <p className="text-muted mb-0 small">Sign in to continue to your account</p>
                 </div>
 
                 {/* Sign In Form */}

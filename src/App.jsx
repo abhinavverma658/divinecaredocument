@@ -154,7 +154,15 @@ export default function SignInPage() {
                         Remember me
                       </label>
                     </div>
-                    <a href="#" className="text-decoration-none small">
+                    <a 
+                      href="#" 
+                      className="text-decoration-none small"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        window.history.pushState({}, '', '/forgot-password');
+                        window.dispatchEvent(new PopStateEvent('popstate'));
+                      }}
+                    >
                       Forgot password?
                     </a>
                   </div>

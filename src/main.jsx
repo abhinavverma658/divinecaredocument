@@ -4,6 +4,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 import SignInPage from './App.jsx'
 import Home from './home.jsx'
+import ForgotPassword from './ForgotPassword.jsx'
 
 function Router() {
   const [path, setPath] = useState(window.location.pathname);
@@ -15,6 +16,7 @@ function Router() {
   }, []);
 
   if (path === '/home') return <Home />;
+  if (path === '/forgot-password') return <ForgotPassword />;
   return <SignInPage />;
 }
 

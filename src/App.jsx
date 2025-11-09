@@ -103,7 +103,7 @@ export default function SignInPage() {
                       type="email"
                       className="form-control form-control-lg"
                       id="email"
-                      placeholder="Enter your email"
+                      placeholder="Enter Your Email"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                     />
@@ -118,7 +118,7 @@ export default function SignInPage() {
                         type={showPassword ? 'text' : 'password'}
                         className="form-control form-control-lg"
                         id="password"
-                        placeholder="Enter your password"
+                        placeholder="Enter Your Password"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                       />

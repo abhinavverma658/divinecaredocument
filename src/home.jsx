@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 const API_URL = import.meta.env.VITE_API_URL;
+const BASE_URL = import.meta.env.VITE_BASE_URL || '';
 
 export default function Home() {
   const [showResetModal, setShowResetModal] = useState(false);
@@ -37,13 +38,19 @@ export default function Home() {
   }, []);
 
   const handleView = (doc) => {
-    // For PDFs, use Google Docs viewer to avoid forced download
-    if (doc.mimeType === 'application/pdf' || (doc.fileUrl && doc.fileUrl.toLowerCase().endsWith('.pdf'))) {
-      const viewerUrl = `https://docs.google.com/viewer?url=${encodeURIComponent(doc.fileUrl)}&embedded=true`;
-      window.open(viewerUrl, '_blank');
+    // Build full URL for viewing the document. If doc.fileUrl is absolute, use it as-is.
+    if (!doc || !doc.fileUrl) return;
+    const isAbsolute = /^https?:\/\//i.test(doc.fileUrl);
+    let fullUrl = '';
+    if (isAbsolute) {
+      fullUrl = doc.fileUrl;
     } else {
-      window.open(doc.fileUrl, '_blank');
+      const base = (BASE_URL || '').replace(/\/$/, '');
+      const path = doc.fileUrl.replace(/^\/+/, '');
+      fullUrl = base ? `${base}/${path}` : `/${path}`;
     }
+    // Open the backend-served file URL directly in a new tab
+    window.open(fullUrl, '_blank');
   };
 
   const handleDownload = async (doc) => {
@@ -61,10 +68,50 @@ export default function Home() {
     }
     // Remove any unsafe characters
     filename = filename.replace(/[^a-zA-Z0-9 ._-]/g, '');
+    let fileUrl = '';
     try {
-      // Fetch as blob to ensure correct file type
-      const response = await fetch(doc.fileUrl);
+      // Build full file URL (same logic as handleView). Use API_URL as a fallback base.
+      const isAbsolute = /^https?:\/\//i.test(doc.fileUrl || '');
+      const baseRaw = BASE_URL || API_URL || '';
+      const base = (baseRaw || '').replace(/\/$/, '');
+      const path = (doc.fileUrl || '').replace(/^\/+/, '');
+      fileUrl = isAbsolute ? doc.fileUrl : (base ? `${base}/${path}` : `/${path}`);
+
+      // Debug: log constructed URL and token presence
+      const token = localStorage.getItem('token');
+      console.debug('Downloading file from:', fileUrl, 'tokenPresent:', !!token);
+
+      // Prepare headers (only include Authorization when token exists)
+      const headers = {};
+      if (token) headers['Authorization'] = `Bearer ${token}`;
+
+      const response = await fetch(fileUrl, { headers });
+
+      if (!response.ok) {
+        // Try to read error text from response for debugging
+        let text = '';
+        try { text = await response.text(); } catch (_) { /* ignore */ }
+        throw new Error(`Status ${response.status} ${response.statusText}${text ? ': ' + text : ''}`);
+      }
+
       const blob = await response.blob();
+
+      // If server provided a filename via Content-Disposition, prefer it
+      try {
+        const cd = response.headers.get('content-disposition');
+        if (cd) {
+          const m = cd.match(/filename\*=UTF-8''([^;\n]+)|filename="?([^";\n]+)"?/i);
+          const extracted = m ? (m[1] || m[2]) : null;
+          if (extracted) {
+            // decode URI-encoded filename if needed
+            const maybeDecoded = decodeURIComponent(extracted.replace(/"/g, ''));
+            filename = maybeDecoded.replace(/[^a-zA-Z0-9 ._-]/g, '');
+          }
+        }
+      } catch (err) {
+        // ignore header parsing errors
+      }
+
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
@@ -74,7 +121,12 @@ export default function Home() {
       document.body.removeChild(link);
       window.URL.revokeObjectURL(url);
     } catch (e) {
-      alert('Failed to download file.');
+      console.error('Download error:', e);
+      // Fallback: open the file URL in a new tab for quick debugging (may fail if auth/CORS required)
+      try {
+        if (fileUrl) window.open(fileUrl, '_blank');
+      } catch (_) { /* ignore */ }
+      
     }
   };
 

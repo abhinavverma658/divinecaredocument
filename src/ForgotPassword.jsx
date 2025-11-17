@@ -14,13 +14,12 @@ export default function ForgotPassword() {
     setError('');
     setSuccess('');
     // For testing: immediately redirect to verify-otp page and store email
-    if (email) {
-      sessionStorage.setItem('resetEmail', email);
-      window.history.pushState({}, '', '/verify-otp');
-      window.dispatchEvent(new PopStateEvent('popstate'));
-    }
+    // if (email) {
+    //   sessionStorage.setItem('resetEmail', email);
+    //   window.history.pushState({}, '', '/verify-otp');
+    //   window.dispatchEvent(new PopStateEvent('popstate'));
+    // }
     // ...existing code for real API call below...
-    /*
     if (!email) {
       setError('Please enter your email address.');
       return;
@@ -61,7 +60,6 @@ export default function ForgotPassword() {
     } finally {
       setLoading(false);
     }
-    */
   };
 
   const handleBackToLogin = () => {

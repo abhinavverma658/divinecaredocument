@@ -4,7 +4,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 const API_URL = import.meta.env.VITE_API_URL;
 
 export default function VerifyOtp() {
-  const [otp, setOtp] = useState(['', '', '', '']);
+  const [otp, setOtp] = useState(['', '', '', '', '', '']);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
@@ -30,7 +30,7 @@ export default function VerifyOtp() {
     newOtp[index] = value;
     setOtp(newOtp);
     // Auto-focus next input
-    if (value && index < 3) {
+    if (value && index < 5) {
       inputRefs.current[index + 1]?.focus();
     }
   };
@@ -44,15 +44,15 @@ export default function VerifyOtp() {
 
   const handlePaste = (e) => {
     e.preventDefault();
-    const pastedData = e.clipboardData.getData('text').slice(0, 4);
+    const pastedData = e.clipboardData.getData('text').slice(0, 6);
     if (!/^\d+$/.test(pastedData)) return;
     const newOtp = [...otp];
     pastedData.split('').forEach((char, index) => {
-      if (index < 4) newOtp[index] = char;
+      if (index < 6) newOtp[index] = char;
     });
     setOtp(newOtp);
     // Focus on the next empty input or last input
-    const nextIndex = Math.min(pastedData.length, 3);
+    const nextIndex = Math.min(pastedData.length, 5);
     inputRefs.current[nextIndex]?.focus();
   };
 
@@ -60,8 +60,8 @@ export default function VerifyOtp() {
     setError('');
     setSuccess('');
     const otpValue = otp.join('');
-    if (otpValue.length !== 4) {
-      setError('Please enter a complete 4-digit OTP.');
+    if (otpValue.length !== 6) {
+      setError('Please enter a complete 6-digit OTP.');
       return;
     }
     if (!email) {
@@ -124,7 +124,7 @@ export default function VerifyOtp() {
                   </div>
                   <h2 className="fw-bold mb-2 fs-3 fs-sm-2">Verify OTP</h2>
                   <p className="text-muted mb-0 small">
-                    Enter the 4-digit OTP sent to<br />
+                    Enter the 6-digit OTP sent to<br />
                     <span className="fw-semibold">{email}</span>
                   </p>
                 </div>
@@ -156,9 +156,9 @@ export default function VerifyOtp() {
                           maxLength="1"
                           className="form-control text-center fs-4 fw-bold"
                           style={{ 
-                            width: 'clamp(45px, 12vw, 60px)', 
-                            height: 'clamp(45px, 12vw, 60px)',
-                            fontSize: 'clamp(1.2rem, 4vw, 1.5rem)',
+                            width: 'clamp(40px, 10vw, 55px)', 
+                            height: 'clamp(40px, 10vw, 55px)',
+                            fontSize: 'clamp(1.1rem, 4vw, 1.4rem)',
                             padding: '0'
                           }}
                           value={digit}

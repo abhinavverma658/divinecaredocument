@@ -81,10 +81,14 @@ export default function VerifyOtp() {
         }),
       });
       const data = await res.json();
-      if (data.success && data.resetToken) {
+      if (data.success) {
         setSuccess('OTP verified successfully!');
-        // Store resetToken for next step
-        sessionStorage.setItem('resetToken', data.resetToken);
+        // Store resetToken for next step if available
+        if (data.data?.resetToken) {
+          sessionStorage.setItem('resetToken', data.data.resetToken);
+        } else if (data.resetToken) {
+          sessionStorage.setItem('resetToken', data.resetToken);
+        }
         // Redirect to reset password page
         setTimeout(() => {
           window.history.pushState({}, '', '/reset-password');

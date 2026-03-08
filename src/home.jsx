@@ -37,8 +37,10 @@ export default function Home() {
           const allDocuments = [];
           data.categories.forEach((cat) => {
             categoryMap[cat.categoryId] = cat.categoryName;
-            if (cat.totalDocuments > 0) {
-              categoryNames.push(cat.categoryName);
+            // Add all categories to the list, regardless of document count
+            categoryNames.push(cat.categoryName);
+            // Only add documents if they exist
+            if (cat.totalDocuments > 0 && cat.documents) {
               cat.documents.forEach((doc) => {
                 // Add category name to document for easier filtering
                 allDocuments.push({
@@ -238,7 +240,10 @@ export default function Home() {
       {/* Header */}
       <nav className="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm">
         <div className="container-fluid px-4">
-          <a className="navbar-brand fw-bold" href="#">
+          <a
+            className="navbar-brand fw-bold"
+            href="https://www.divinecareinc.com/"
+          >
             <img src="/16.png" alt="Brand logo" />
           </a>
           <button

@@ -281,7 +281,8 @@ export default function Home() {
                 type="button"
                 onClick={() => {
                   localStorage.clear();
-                  window.location.href = "/";
+                  sessionStorage.clear();
+                  window.location.replace("https://www.divinecareinc.com/");
                 }}
               >
                 Logout

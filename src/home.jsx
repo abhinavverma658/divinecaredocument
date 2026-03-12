@@ -79,11 +79,12 @@ export default function Home() {
 
     // For DOCX files, use Google Docs Viewer
     if (
-      doc.mimeType === "application/vnd.openxmlformats-officedocument.wordprocessingml.document" ||
+      doc.mimeType ===
+        "application/vnd.openxmlformats-officedocument.wordprocessingml.document" ||
       doc.fileUrl?.toLowerCase().endsWith(".docx")
     ) {
       const viewerUrl = `https://docs.google.com/viewer?url=${encodeURIComponent(
-        fullUrl
+        fullUrl,
       )}&embedded=true`;
       window.open(viewerUrl, "_blank");
     } else {

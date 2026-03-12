@@ -66,7 +66,6 @@ export default function Home() {
   }, []);
 
   const handleView = (doc) => {
-    // Build full URL for viewing the document. If doc.fileUrl is absolute, use it as-is.
     if (!doc || !doc.fileUrl) return;
     const isAbsolute = /^https?:\/\//i.test(doc.fileUrl);
     let fullUrl = "";
@@ -77,8 +76,20 @@ export default function Home() {
       const path = doc.fileUrl.replace(/^\/+/, "");
       fullUrl = base ? `${base}/${path}` : `/${path}`;
     }
-    // Open the backend-served file URL directly in a new tab
-    window.open(fullUrl, "_blank");
+
+    // For DOCX files, use Google Docs Viewer
+    if (
+      doc.mimeType === "application/vnd.openxmlformats-officedocument.wordprocessingml.document" ||
+      doc.fileUrl?.toLowerCase().endsWith(".docx")
+    ) {
+      const viewerUrl = `https://docs.google.com/viewer?url=${encodeURIComponent(
+        fullUrl
+      )}&embedded=true`;
+      window.open(viewerUrl, "_blank");
+    } else {
+      // Open PDFs and other files directly
+      window.open(fullUrl, "_blank");
+    }
   };
 
   const handleDownload = async (doc) => {
